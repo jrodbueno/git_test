@@ -42,11 +42,14 @@ Queried against both public resolvers and the authoritative Vercel nameservers:
 | **DMARC** (`_dmarc` TXT) | None | No spoofing protection or reporting. |
 | **DKIM** (common selectors) | None found | No signing keys published. |
 
+**Follow-up research (public sources):** the dealership's *advertised* contact email is `ventas1@autosicar.com.mx` — a **sister domain** (`autosicar.com.mx`) that is unaffected by this migration: it still runs on Triara (Telmex) DNS with working MX records pointing at `maila`/`mailb.exchangeadministrado.com` (managed Exchange) and a valid SPF record. So the main sales inbox is likely fine. However, at least one staff mailbox on `@sicarautos.com.mx` (Carlos Ivan Maldonado, listed in a dealer directory) appears in public listings — if mailboxes on *this* domain were active, they are bouncing now.
+
 **Action required:**
-- If the business **uses** email on this domain: restore the MX records from the previous provider (or migrate to Google Workspace / Microsoft 365) in the Vercel DNS dashboard **immediately**, then add matching SPF, DKIM, and DMARC records.
+- Confirm with the business whether any `@sicarautos.com.mx` mailboxes are active. If yes, restore the MX records in the Vercel DNS dashboard **immediately** — if they lived on the same managed-Exchange service as the sister domain, that is `MX 10 maila.exchangeadministrado.com` / `MX 10 mailb.exchangeadministrado.com` plus TXT `v=spf1 include:spf.exchangeadministrado.com ~all`, then DKIM/DMARC.
 - If the domain **never sends or receives email**: publish a null policy to block spoofing:
   - TXT `@` → `v=spf1 -all`
   - TXT `_dmarc` → `v=DMARC1; p=reject; adkim=s; aspf=s`
+- Side note: `autosicar.com.mx` (the domain that *does* carry email) has no DMARC record either — worth adding one there too.
 
 ## 3. Subdomains — 🟠 Wildcard swallowed everything
 
